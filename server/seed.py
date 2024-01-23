@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from faker import Faker
-from random import choice as rc  # Add this import
+from random import choice as rc
 from models import db, User, Illness, Medicine, Order, user_illness, illness_medicine
 
 app = Flask(__name__)
@@ -11,6 +11,15 @@ db.init_app(app)
 
 fake = Faker()
 app.app_context().push()
+
+illness_names = ["Fever", "Common Cold", "Headache", "Flu", "Stomachache"]
+illness_descriptions = [
+    "A common symptom of various illnesses characterized by an elevated body temperature.",
+    "A mild viral infection affecting the nose and throat.",
+    "A pain in the head or upper neck.",
+    "A highly contagious respiratory infection.",
+    "Pain or discomfort in the stomach."
+]
 
 def create_fake_user():
     return User(
@@ -24,15 +33,6 @@ def create_fake_user():
         previous_illnesses=fake.text(max_nb_chars=750)
     )
 
-illness_names = ["Fever", "Common Cold", "Headache", "Flu", "Stomachache"]
-illness_descriptions = [
-    "A common symptom of various illnesses characterized by an elevated body temperature.",
-    "A mild viral infection affecting the nose and throat.",
-    "A pain in the head or upper neck.",
-    "A highly contagious respiratory infection.",
-    "Pain or discomfort in the stomach."
-]
-
 def create_fake_illness():
     return Illness(
         name=rc(illness_names),
@@ -40,12 +40,21 @@ def create_fake_illness():
     )
 
 def create_fake_medicine():
-    return Medicine(
-        name=fake.word(),
-        description=fake.text(),
-        price=fake.pyfloat(min_value=5, max_value=50, right_digits=2)
-    )
+    medicine_data = [
+        {"name": "Aspirin", "description": "Relieves pain and reduces inflammation.", "price": 10.99},
+        {"name": "Ibuprofen", "description": "Treats pain and inflammation.", "price": 8.99},
+        {"name": "Paracetamol", "description": "Used to reduce fever and relieve pain.", "price": 7.49},
+        {"name": "Cough Syrup", "description": "Relieves cough symptoms.", "price": 15.99},
+        {"name": "Antacid", "description": "Neutralizes stomach acid.", "price": 12.49},
+    ]
 
+    selected_medicine = rc(medicine_data)
+
+    return Medicine(
+        name=selected_medicine["name"],
+        description=selected_medicine["description"],
+        price=selected_medicine["price"]
+    )
 def create_fake_order():
     return Order(
         user_id=fake.random_int(min=1, max=10),
@@ -56,8 +65,15 @@ def create_fake_order():
     )
 
 def seed_database():
+
+    db.session.query(User).delete()
+    db.session.query(Illness).delete()
+    db.session.query(Medicine).delete()
+    db.session.query(Order).delete()
+    
+    fake_illnesses = [create_fake_illness() for _ in range(5)]  # You can adjust the number of illnesses
+
     fake_users = [create_fake_user() for _ in range(10)]
-    fake_illnesses = [create_fake_illness() for _ in range(10)]
     fake_medicines = [create_fake_medicine() for _ in range(20)]
     fake_orders = [create_fake_order() for _ in range(10)]
 
