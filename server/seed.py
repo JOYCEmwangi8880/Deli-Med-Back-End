@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from faker import Faker
+from random import choice as rc  # Add this import
 from models import db, User, Illness, Medicine, Order, user_illness, illness_medicine
 
 app = Flask(__name__)
@@ -23,10 +24,19 @@ def create_fake_user():
         previous_illnesses=fake.text(max_nb_chars=750)
     )
 
+illness_names = ["Fever", "Common Cold", "Headache", "Flu", "Stomachache"]
+illness_descriptions = [
+    "A common symptom of various illnesses characterized by an elevated body temperature.",
+    "A mild viral infection affecting the nose and throat.",
+    "A pain in the head or upper neck.",
+    "A highly contagious respiratory infection.",
+    "Pain or discomfort in the stomach."
+]
+
 def create_fake_illness():
     return Illness(
-        name=fake.word(),
-        description=fake.text()
+        name=rc(illness_names),
+        description=rc(illness_descriptions)
     )
 
 def create_fake_medicine():
