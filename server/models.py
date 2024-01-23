@@ -41,18 +41,18 @@ class Medicine(db.Model):
 class Order(db.Model):
     __tablename__ = 'Orders'
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    medicine_id = db.Column(db.Integer, db.ForeignKey('medicines.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.id'), nullable=False)
     quantity = db.Column(db.Integer)
     total_price = db.Column(db.Float)
     delivery_address = db.Column(db.String(200))
+    medicine_id = db.Column(db.Integer, db.ForeignKey('Medicines.id'), nullable=False)
 
 user_illness = db.Table('user_illness',
-    db.Column('user_id', db.Integer(), db.ForeignKey('users.id')),
-    db.Column('illness_id', db.Integer(), db.ForeignKey('illnesses.id'))
+    db.Column('user_id', db.Integer(), db.ForeignKey('Users.id')),
+    db.Column('illness_id', db.Integer(), db.ForeignKey('Illnesses.id'))
 )
 
 illness_medicine = db.Table('illness_medicine',
-    db.Column('illness_id', db.Integer(), db.ForeignKey('illnesses.id')),
-    db.Column('medicine_id', db.Integer(), db.ForeignKey('medicines.id'))
+    db.Column('illness_id', db.Integer(), db.ForeignKey('Illnesses.id')),
+    db.Column('medicine_id', db.Integer(), db.ForeignKey('Medicines.id'))
 )
