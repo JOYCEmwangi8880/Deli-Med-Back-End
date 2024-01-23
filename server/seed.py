@@ -23,4 +23,42 @@ def create_fake_user():
         previous_illnesses=fake.text(max_nb_chars=750)
     )
 
-# ... (rest of the functions remain unchanged)
+def create_fake_illness():
+    return Illness(
+        name=fake.word(),
+        description=fake.text()
+    )
+
+def create_fake_medicine():
+    return Medicine(
+        name=fake.word(),
+        description=fake.text(),
+        price=fake.pyfloat(min_value=5, max_value=50, right_digits=2)
+    )
+
+def create_fake_order():
+    return Order(
+        user_id=fake.random_int(min=1, max=10),
+        medicine_id=fake.random_int(min=1, max=20),
+        quantity=fake.random_int(min=1, max=10),
+        total_price=fake.pyfloat(min_value=5, max_value=500, right_digits=2),
+        delivery_address=fake.address()
+    )
+
+def seed_database():
+    fake_users = [create_fake_user() for _ in range(10)]
+    fake_illnesses = [create_fake_illness() for _ in range(10)]
+    fake_medicines = [create_fake_medicine() for _ in range(20)]
+    fake_orders = [create_fake_order() for _ in range(10)]
+
+    db.create_all()
+
+    db.session.bulk_save_objects(fake_users)
+    db.session.bulk_save_objects(fake_illnesses)
+    db.session.bulk_save_objects(fake_medicines)
+    db.session.bulk_save_objects(fake_orders)
+
+    db.session.commit()
+
+if __name__ == '__main__':
+    seed_database()
