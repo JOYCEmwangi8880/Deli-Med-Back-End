@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User
 
 auth = Blueprint('auth', __name__)
-
+#signup
 @auth.route('/signup', methods=['POST'])
 def signup():
     try:
@@ -40,7 +40,7 @@ def signup():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
+#login 
 @auth.route('/login', methods=['POST'])
 def login():
     try:
@@ -55,7 +55,7 @@ def login():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
+#logout
 @auth.route('/logout', methods=['POST'])
 def logout():
     try:
