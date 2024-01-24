@@ -66,26 +66,26 @@ def get_medicine():
 #route to filter by illness and get medications
 @app.route('/illnesses/<string:name>')
 def get_illness_medicine(name):
-    illnesses = Illness.query.filter_by(name=name).all()
-    if not illnesses:
+    illness = Illness.query.filter_by(name=name).first()
+    if not illness:
         return jsonify({'message' : 'We have not stocked medications for that illness. Check another time'})
-    illnesses_list = []
-    for illness in illnesses_list:
-        illness_data = {
-            'id' : illness.id,
+    
+    illness_data = {
+        'id': illness.id,
             'name': illness.name,
-            'description' : illness.description,
-            'medications':[]
-            }
-        for medicine in illness.medications:
-            medicine_data = {
-                'id' : medicine.id,
-                'name' : medicine.name,
-                'price' : medicine.price
-            }
-            illness_data['medications'].append(medicine_data)
-        response = jsonify(illness_data)
-        return response
+            'description': illness.description,
+            'medications' : []
+            }  
+    for medicine in illness.medicines:
+        medicine_data= {
+            'id': medicine.id,
+            'name': medicine.name,
+            'description': medicine.description,
+            'price': medicine.price
+        }
+        illness_data['medications'].append(medicine_data)
+    return jsonify(illness_data), 200  # jsonify the list of illness data
+    
 
 
 
