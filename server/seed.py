@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from faker import Faker
+
 from models import db, User, Illness, Medicine, Order, user_illness, illness_medicine
 
 app = Flask(__name__)
