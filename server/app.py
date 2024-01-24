@@ -14,6 +14,7 @@ migrate = Migrate(app, db)
 
 db.init_app(app)
 
+
 # CRUD actions for User resource
 @app.route('/users', methods=['POST'])
 def create_user():
@@ -61,8 +62,30 @@ def get_medicine():
         }
         medicine_list.append(med_dict)
     return jsonify(medicine_list)
-    
-        
+
+#route to filter by illness and get medications
+@app.route('/illnesses/<string:name>')
+def get_illness_medicine(name):
+    illnesses = Illness.query.filter_by(name=name).all()
+    if not illnesses:
+        return jsonify({'message' : 'We have not stocked medications for that illness. Check another time'})
+    illnesses_list = []
+    for illness in illnesses_list:
+        illness_data = {
+            'id' : illness.id,
+            'name': illness.name,
+            'description' : illness.description,
+            'medications':[]
+            }
+        for medicine in illness.medications:
+            medicine_data = {
+                'id' : medicine.id,
+                'name' : medicine.name,
+                'price' : medicine.price
+            }
+            illness_data['medications'].append(medicine_data)
+        response = jsonify(illness_data)
+        return response
 
 
 
