@@ -10,7 +10,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 fake = Faker()
-app.app_context().push()
 
 illness_names = ["Fever", "Common Cold", "Headache", "Flu", "Stomachache"]
 illness_descriptions = [
@@ -19,6 +18,14 @@ illness_descriptions = [
     "A pain in the head or upper neck.",
     "A highly contagious respiratory infection.",
     "Pain or discomfort in the stomach."
+]
+
+illness_data = [
+    {"name": "Fever", "description": "A common symptom of various illnesses characterized by an elevated body temperature."},
+    {"name": "Common Cold", "description": "A mild viral infection affecting the nose and throat."},
+    {"name": "Headache", "description": "A pain in the head or upper neck."},
+    {"name": "Flu", "description": "A highly contagious respiratory infection."},
+    {"name": "Stomachache", "description": "Pain or discomfort in the stomach."}
 ]
 
 def create_fake_user():
@@ -55,6 +62,7 @@ def create_fake_medicine():
         description=selected_medicine["description"],
         price=selected_medicine["price"]
     )
+
 def create_fake_order():
     return Order(
         user_id=fake.random_int(min=1, max=10),
@@ -71,11 +79,11 @@ def seed_database():
     db.session.query(Medicine).delete()
     db.session.query(Order).delete()
     
-    fake_illnesses = [create_fake_illness() for _ in range(5)]  # You can adjust the number of illnesses
+    fake_illnesses = [create_fake_illness() for _ in range(50)]  # You can adjust the number of illnesses
 
-    fake_users = [create_fake_user() for _ in range(10)]
-    fake_medicines = [create_fake_medicine() for _ in range(20)]
-    fake_orders = [create_fake_order() for _ in range(10)]
+    fake_users = [create_fake_user() for _ in range(30)]
+    fake_medicines = [create_fake_medicine() for _ in range(50)]
+    fake_orders = [create_fake_order() for _ in range(500)]
 
     db.create_all()
 
