@@ -17,7 +17,7 @@ def signup():
         if existing_user or existing_email:
             return jsonify({'message': 'Username or email already exists'}), 400
 
-        # Hash the password before saving it to the database
+        
        # Hash the password before saving it to the database
         hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
 
