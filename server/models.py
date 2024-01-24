@@ -1,8 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_login import UserMixin
 db = SQLAlchemy()
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -12,8 +12,10 @@ class User(db.Model):
     age = db.Column(db.Integer)
     height = db.Column(db.Float)
     blood_type = db.Column(db.String(3))
-    previous_illnesses = db.relationship('Illness', secondary='user_illness')
-
+    previous_illnesses = db.Column(db.String(750)) 
+    
+    def is_active(self):
+        return True
 class Illness(db.Model):
     __tablename__ = 'illnesses'
     id = db.Column(db.Integer, primary_key=True)
