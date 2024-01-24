@@ -73,26 +73,26 @@ def create_fake_order():
     )
 
 def seed_database():
+    with app.app_context():
+        db.session.query(User).delete()
+        db.session.query(Illness).delete()
+        db.session.query(Medicine).delete()
+        db.session.query(Order).delete()
+        
+        fake_illnesses = [create_fake_illness() for _ in range(50)]
+        fake_users = [create_fake_user() for _ in range(30)]
+        fake_medicines = [create_fake_medicine() for _ in range(50)]
+        fake_orders = [create_fake_order() for _ in range(500)]
 
-    db.session.query(User).delete()
-    db.session.query(Illness).delete()
-    db.session.query(Medicine).delete()
-    db.session.query(Order).delete()
-    
-    fake_illnesses = [create_fake_illness() for _ in range(50)]  # You can adjust the number of illnesses
+        db.create_all()
 
-    fake_users = [create_fake_user() for _ in range(30)]
-    fake_medicines = [create_fake_medicine() for _ in range(50)]
-    fake_orders = [create_fake_order() for _ in range(500)]
+        db.session.bulk_save_objects(fake_users)
+        db.session.bulk_save_objects(fake_illnesses)
+        db.session.bulk_save_objects(fake_medicines)
+        db.session.bulk_save_objects(fake_orders)
 
-    db.create_all()
-
-    db.session.bulk_save_objects(fake_users)
-    db.session.bulk_save_objects(fake_illnesses)
-    db.session.bulk_save_objects(fake_medicines)
-    db.session.bulk_save_objects(fake_orders)
-
-    db.session.commit()
+        db.session.commit()
 
 if __name__ == '__main__':
     seed_database()
+
