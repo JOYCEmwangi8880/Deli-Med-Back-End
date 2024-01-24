@@ -62,7 +62,8 @@ def get_medicine():
         }
         medicine_list.append(med_dict)
     return jsonify(medicine_list)
-    
+
+#route to filter by illness and get medications
 @app.route('/illnesses/<string:name>')
 def get_illness_medicine(name):
     illnesses = Illness.query.filter_by(name=name).all()
