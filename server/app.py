@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from models import db, User, Illness, Medicine, Order, user_illness, illness_medicine
+from auth import auth
 from flask_cors import CORS
 
 app = Flask(__name__)
