@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from models import db, User, Illness, Medicine, Order, user_illness, illness_medicine
 from auth import auth
+from flask_cors import CORS
 
 app = Flask(__name__)
 
@@ -13,6 +14,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSONIFY_COMPACT'] = False  
 migrate = Migrate(app, db)
+CORS(app)
 db.init_app(app)
 
 login_manager = LoginManager()
@@ -42,11 +44,16 @@ def create_user():
     db.session.commit()
     return jsonify({'message': 'User created successfully'}), 201
 
-@app.route('/users/<int:id>', methods=['GET'])
-def get_user(id):
-    user = User.query.filter_by(id=id).first()
-    user_data = {
-        'id': user.id,
+
+
+@app.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    user_list = []
+
+    for user in users:
+        user_data = {
+            'id': user.id,
             'username': user.username,
             'email': user.email,
             'name': user.name,
@@ -54,9 +61,10 @@ def get_user(id):
             'height': user.height,
             'blood_type': user.blood_type,
             'previous_illnesses': user.previous_illnesses
-    }
-   
-    return jsonify(user_data)
+        }
+        user_list.append(user_data)
+
+    return jsonify(user_list)
 
 @app.route('/users/<int:id>', methods=['PUT'])
 def update_user(id):

@@ -1,10 +1,11 @@
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, request, jsonify
 from flask_login import login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User
 
 auth = Blueprint('auth', __name__)
-#signup
+
+# Signup
 @auth.route('/signup', methods=['POST'])
 def signup():
     try:
@@ -17,8 +18,7 @@ def signup():
         if existing_user or existing_email:
             return jsonify({'message': 'Username or email already exists'}), 400
 
-        
-       # Hash the password before saving it to the database
+        # Hash the password before saving it to the database
         hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
 
         new_user = User(
@@ -40,7 +40,7 @@ def signup():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-#login 
+# Login 
 @auth.route('/login', methods=['POST'])
 def login():
     try:
@@ -49,13 +49,27 @@ def login():
 
         if user and check_password_hash(user.password, data['password']):
             login_user(user)
-            return jsonify({'message': 'Login successful'}), 200
+
+            # Create a dictionary with user data to include in the response
+            user_data = {
+                'username': user.username,
+                'email': user.email,
+                'name': user.name,
+                'age': user.age,
+                'height': user.height,
+                'blood_type': user.blood_type,
+                'previous_illnesses': user.previous_illnesses
+                # Add more fields as needed
+            }
+
+            return jsonify({'message': 'Login successful', 'user_data': user_data}), 200
         else:
             return jsonify({'message': 'Invalid username or password'}), 401
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-#logout
+
+# Logout
 @auth.route('/logout', methods=['POST'])
 def logout():
     try:
