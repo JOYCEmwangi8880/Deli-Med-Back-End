@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from models import db, User, Illness, Medicine, Order, user_illness, illness_medicine
 from auth import auth
+from flask_cors import CORS
 
 app = Flask(__name__)
 
@@ -13,6 +14,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSONIFY_COMPACT'] = False  
 migrate = Migrate(app, db)
+CORS(app)
 db.init_app(app)
 
 login_manager = LoginManager()
@@ -203,8 +205,6 @@ def delete_order(id):
     return jsonify({'message': 'Order deleted successfully'}), 200
 
     
-
-
 
 @app.route('/')
 def test():
