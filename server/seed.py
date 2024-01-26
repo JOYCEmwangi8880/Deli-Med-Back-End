@@ -29,8 +29,7 @@ illness_data = [
 ]
 
 def create_fake_user():
-    sickness_names = ["Fever", "Common Cold", "Headache", "Flu", "Stomachache"]
-    
+
     return User(
         username=fake.user_name(),
         email=fake.email(),
@@ -39,7 +38,7 @@ def create_fake_user():
         age=fake.random_int(min=18, max=80),
         height=fake.random.uniform(150, 200),
         blood_type=fake.random_element(elements=('A', 'B', 'AB', 'O')),
-        previous_illnesses=rc(sickness_names)
+        
     )
 
 def create_fake_illness():

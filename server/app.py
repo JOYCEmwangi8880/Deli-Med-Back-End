@@ -1,19 +1,30 @@
-
-from flask import Flask, request, make_response, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from models import db , User, Illness, Medicine, Order, user_illness, illness_medicine
+from flask_login import LoginManager
+from models import db, User, Illness, Medicine, Order, user_illness, illness_medicine
 
+from flask_cors import CORS
 
 app = Flask(__name__)
 
+app.config['SECRET_KEY'] = 'your_unique_and_secret_key'
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.json.compact = False
+app.config['JSONIFY_COMPACT'] = False  
 migrate = Migrate(app, db)
-
+CORS(app)
 db.init_app(app)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+#app.register_blueprint(auth, url_prefix='/auth')
+
+# Configure user loader function
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # CRUD actions for User resource
 @app.route('/users', methods=['POST'])
@@ -33,11 +44,16 @@ def create_user():
     db.session.commit()
     return jsonify({'message': 'User created successfully'}), 201
 
-@app.route('/users/<int:id>', methods=['GET'])
-def get_user(id):
-    user = User.query.filter_by(id=id).first()
-    user_data = {
-        'id': user.id,
+
+
+@app.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    user_list = []
+
+    for user in users:
+        user_data = {
+            'id': user.id,
             'username': user.username,
             'email': user.email,
             'name': user.name,
@@ -45,9 +61,39 @@ def get_user(id):
             'height': user.height,
             'blood_type': user.blood_type,
             'previous_illnesses': user.previous_illnesses
-    }
-   
-    return jsonify(user_data)
+        }
+        user_list.append(user_data)
+
+    return jsonify(user_list)
+
+@app.route('/users/<int:id>', methods=['PUT'])
+def update_user(id):
+    user = User.query.get(id)
+    if not user:
+        return jsonify({'message': 'No user found'}), 404
+
+    data = request.json
+    user.username = data.get('username', user.username)
+    user.email = data.get('email', user.email)
+    user.password = data.get('password', user.password)
+    user.name = data.get('name', user.name)
+    user.age = data.get('age', user.age)
+    user.height = data.get('height', user.height)
+    user.blood_type = data.get('blood_type', user.blood_type)
+    user.previous_illnesses = data.get('previous_illnesses', user.previous_illnesses)
+
+    db.session.commit()
+    return jsonify({'message': 'User updated successfully'}), 200
+
+@app.route('/users/<int:id>', methods=['DELETE'])
+def delete_user(id):
+    user = User.query.get(id)
+    if not user:
+        return jsonify({'message': 'No user found'}), 404
+
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'message': 'User deleted successfully'}), 200
 
 @app.route('/medicines', methods=['GET'])
 def get_medicine():
@@ -62,6 +108,22 @@ def get_medicine():
         }
         medicine_list.append(med_dict)
     return jsonify(medicine_list)
+
+# Retrieve information about a specific medicine by ID
+@app.route('/medicines/<int:id>', methods=['GET'])
+def get_medicine_by_id(id):
+    medicine = Medicine.query.get(id)
+    if not medicine:
+        return jsonify({'message': 'Medicine not found'}), 404
+
+    medicine_data = {
+        'id': medicine.id,
+        'name': medicine.name,
+        'description': medicine.description,
+        'price': medicine.price
+    }
+
+    return jsonify(medicine_data), 200
 
 #route to filter by illness and get medications
 @app.route('/illnesses/<string:name>')
@@ -85,6 +147,69 @@ def get_illness_medicine(name):
         }
         illness_data['medications'].append(medicine_data)
     return jsonify(illness_data), 200  # jsonify the list of illness data
+
+@app.route('/orders', methods=['POST'])
+def create_order():
+    data = request.json
+    user = User.query.get(data['user_id'])
+    medicine = Medicine.query.get(data['medicine_id'])
+
+    
+    new_order = Order(
+        user_id=user.id,
+        medicine_id=medicine.id,
+        quantity=data['quantity'],
+        total_price=data['total_price'],
+        delivery_address=data['delivery_address']
+    )
+    db.session.add(new_order)
+
+    
+    user.add_previous_illness(medicine.illnesses[0].name)
+
+    db.session.commit()
+    return jsonify({'message': 'Order created successfully'}), 201
+
+
+@app.route('/orders/<int:id>', methods=['GET'])
+def get_order(id):
+    order = Order.query.filter_by(id=id).first()
+    order_data = {
+        'id': order.id,
+        'user_id': order.user_id,
+        'medicine_id': order.medicine_id,
+        'quantity': order.quantity,
+        'total_price': order.total_price,
+        'delivery_address': order.delivery_address
+    }
+    return jsonify(order_data)
+
+@app.route('/orders/<int:id>', methods=['PUT'])
+def update_order(id):
+    order = Order.query.get(id)
+    if not order:
+        return jsonify({'message': 'No order found'}), 404
+
+    data = request.json
+    order.user_id = data.get('user_id', order.user_id)
+    order.medicine_id = data.get('medicine_id', order.medicine_id)
+    order.quantity = data.get('quantity', order.quantity)
+    order.total_price = data.get('total_price', order.total_price)
+    order.delivery_address = data.get('delivery_address', order.delivery_address)
+
+    db.session.commit()
+    return jsonify({'message': 'Order updated successfully'}), 200
+
+@app.route('/orders/<int:id>', methods=['DELETE'])
+def delete_order(id):
+    order = Order.query.get(id)
+    if not order:
+        return jsonify({'message': 'No order found'}), 404
+
+    db.session.delete(order)
+    db.session.commit()
+    return jsonify({'message': 'Order deleted successfully'}), 200
+
     
 
 
@@ -94,5 +219,4 @@ def test():
     return ''
 
 if __name__ == '__main__':
-    app.run(port=5555)
-
+    app.run(debug=True)
