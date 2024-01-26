@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
 from models import db, User, Illness, Medicine, Order, user_illness, illness_medicine
-
+from auth import auth
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -19,7 +19,7 @@ db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-#app.register_blueprint(auth, url_prefix='/auth')
+app.register_blueprint(auth, url_prefix='/auth')
 
 # Configure user loader function
 @login_manager.user_loader
@@ -209,6 +209,21 @@ def delete_order(id):
     db.session.delete(order)
     db.session.commit()
     return jsonify({'message': 'Order deleted successfully'}), 200
+
+@app.route('/illnesses', methods=['GET'])
+def get_illnesses():
+    illnesses = Illness.query.all()
+    illness_list_list = []
+
+    for illness in illnesses:
+        illness_data = {
+            'id': illness.id,
+            'name': illnessname,
+            'description': illness.description
+        }
+        illness_list.append(illness_data)
+
+    return jsonify(illness_list)
 
     
 
