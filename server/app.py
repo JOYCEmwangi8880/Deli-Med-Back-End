@@ -126,27 +126,35 @@ def get_medicine_by_id(id):
     return jsonify(medicine_data), 200
 
 #route to filter by illness and get medications
-@app.route('/illnesses/<string:name>')
-def get_illness_medicine(name):
-    illness = Illness.query.filter_by(name=name).first()
-    if not illness:
-        return jsonify({'message' : 'We have not stocked medications for that illness. Check another time'})
-    
-    illness_data = {
-        'id': illness.id,
+@app.route('/illnesses', methods=['GET'])
+def get_all_illnesses():
+    illnesses = Illness.query.all()
+
+    if not illnesses:
+        return jsonify({'message': 'No illnesses found'})
+
+    illnesses_data = []
+    for illness in illnesses:
+        illness_data = {
+            'id': illness.id,
             'name': illness.name,
             'description': illness.description,
-            'medications' : []
-            }  
-    for medicine in illness.medicines:
-        medicine_data= {
-            'id': medicine.id,
-            'name': medicine.name,
-            'description': medicine.description,
-            'price': medicine.price
+            'medications': []
         }
-        illness_data['medications'].append(medicine_data)
-    return jsonify(illness_data), 200  # jsonify the list of illness data
+
+        for medicine in illness.medicines:
+            medicine_data = {
+                'id': medicine.id,
+                'name': medicine.name,
+                'description': medicine.description,
+                'price': medicine.price
+            }
+            illness_data['medications'].append(medicine_data)
+
+        illnesses_data.append(illness_data)
+
+    return jsonify(illnesses_data), 200
+
 
 @app.route('/orders', methods=['POST'])
 def create_order():

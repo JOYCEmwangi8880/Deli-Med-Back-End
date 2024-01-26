@@ -1,5 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from sqlalchemy.dialects.postgresql import JSON
+
 db = SQLAlchemy()
 
 class User(db.Model, UserMixin):
@@ -12,7 +14,7 @@ class User(db.Model, UserMixin):
     age = db.Column(db.Integer)
     height = db.Column(db.Float)
     blood_type = db.Column(db.String(3))
-    previous_illnesses = db.Column(db.String(750)) 
+    previous_illnesses = db.Column(JSON, default=[])
     
     def is_active(self):
         return True
@@ -31,6 +33,7 @@ class Medicine(db.Model):
     name = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text)
     price = db.Column(db.Float)
+    
 
 class Order(db.Model):
     __tablename__ = 'orders'
