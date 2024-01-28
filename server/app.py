@@ -184,6 +184,26 @@ def get_order(id):
     }
     return jsonify(order_data)
 
+
+@app.route('/orders/user/<int:user_id>', methods=['GET'])
+def get_previous_orders(user_id):
+    orders = Order.query.filter_by(user_id=user_id).all()
+    previous_orders = []
+
+    for order in orders:
+        order_data = {
+            'id': order.id,
+            'user_id': order.user_id,
+            'medicine_id': order.medicine_id,
+            'quantity': order.quantity,
+            'total_price': order.total_price,
+            'delivery_address': order.delivery_address
+        }
+        previous_orders.append(order_data)
+
+    return jsonify(previous_orders)
+    
+
 @app.route('/orders/<int:id>', methods=['PUT'])
 def update_order(id):
     order = Order.query.get(id)
