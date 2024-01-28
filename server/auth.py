@@ -60,7 +60,7 @@ def login():
                 'height': user.height,
                 'blood_type': user.blood_type,
                 'previous_illnesses': user.previous_illnesses
-                # Add more fields as needed
+               
             }
 
             return jsonify({'message': 'Login successful', 'user_data': user_data}), 200
