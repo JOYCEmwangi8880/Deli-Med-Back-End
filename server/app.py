@@ -60,7 +60,7 @@ def get_user(id):
    
     return jsonify(user_data)
 
-@app.route('/users/<int:id>', methods=['PUT'])
+@app.route('/users/<int:id>', methods=['PATCH'])
 def update_user(id):
     user = User.query.get(id)
     if not user:
@@ -69,12 +69,10 @@ def update_user(id):
     data = request.json
     user.username = data.get('username', user.username)
     user.email = data.get('email', user.email)
-    user.password = data.get('password', user.password)
     user.name = data.get('name', user.name)
     user.age = data.get('age', user.age)
     user.height = data.get('height', user.height)
-    user.blood_type = data.get('blood_type', user.blood_type)
-    user.previous_illnesses = data.get('previous_illnesses', user.previous_illnesses)
+    
 
     db.session.commit()
     return jsonify({'message': 'User updated successfully'}), 200
