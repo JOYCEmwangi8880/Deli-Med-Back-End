@@ -235,6 +235,7 @@ def get_illnesses():
     illnesses = Illness.query.all()
     illness_list = []
 
+<<<<<<< HEAD
     for illness in illnesses:
         illness_data = {
             'id': illness.id,
@@ -265,6 +266,8 @@ def get_medicines_for_illness(illness_id):
     return jsonify(serialized_medicines)
 
 
+=======
+>>>>>>> 3723b7f (Install and import CORS)
 @app.route('/')
 def test():
     return ''
