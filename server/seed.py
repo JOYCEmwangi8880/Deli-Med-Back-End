@@ -1,36 +1,23 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from faker import Faker
-from random import choice as rc
-from models import db, User, Illness, Medicine, Order, user_illness, illness_medicine
+import random  # Import random module for generating random data
+from models import db, User, Illness, Medicine, user_illness, illness_medicine
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
-fake = Faker()
-
-illness_names = ["Fever", "Common Cold", "Headache", "Flu", "Stomachache"]
-illness_descriptions = [
-    "A common symptom of various illnesses characterized by an elevated body temperature.",
-    "A mild viral infection affecting the nose and throat.",
-    "A pain in the head or upper neck.",
-    "A highly contagious respiratory infection.",
-    "Pain or discomfort in the stomach."
-]
-
-illness_data = [
-    {"name": "Fever", "description": "A common symptom of various illnesses characterized by an elevated body temperature."},
-    {"name": "Common Cold", "description": "A mild viral infection affecting the nose and throat."},
-    {"name": "Headache", "description": "A pain in the head or upper neck."},
-    {"name": "Flu", "description": "A highly contagious respiratory infection."},
-    {"name": "Stomachache", "description": "Pain or discomfort in the stomach."}
-]
+fake = Faker()  # Initialize Faker for generating fake data
 
 def create_fake_user():
+<<<<<<< HEAD
 
     return User(
+=======
+    user = User(
+>>>>>>> 6c8f519 (saturday)
         username=fake.user_name(),
         email=fake.email(),
         password=fake.password(),
@@ -40,60 +27,82 @@ def create_fake_user():
         blood_type=fake.random_element(elements=('A', 'B', 'AB', 'O')),
         
     )
+    return user
 
 def create_fake_illness():
     return Illness(
-        name=rc(illness_names),
-        description=rc(illness_descriptions)
+        name=fake.word(),
+        description=fake.text(max_nb_chars=200)
     )
 
 def create_fake_medicine():
-    medicine_data = [
-        {"name": "Aspirin", "description": "Relieves pain and reduces inflammation.", "price": 10.99},
-        {"name": "Ibuprofen", "description": "Treats pain and inflammation.", "price": 8.99},
-        {"name": "Paracetamol", "description": "Used to reduce fever and relieve pain.", "price": 7.49},
-        {"name": "Cough Syrup", "description": "Relieves cough symptoms.", "price": 15.99},
-        {"name": "Antacid", "description": "Neutralizes stomach acid.", "price": 12.49},
-    ]
-
-    selected_medicine = rc(medicine_data)
-
     return Medicine(
-        name=selected_medicine["name"],
-        description=selected_medicine["description"],
-        price=selected_medicine["price"]
-    )
-
-def create_fake_order():
-    return Order(
-        user_id=fake.random_int(min=1, max=10),
-        medicine_id=fake.random_int(min=1, max=20),
-        quantity=fake.random_int(min=1, max=10),
-        total_price=fake.pyfloat(min_value=5, max_value=500, right_digits=2),
-        delivery_address=fake.address()
+        name=fake.word(),
+        description=fake.text(max_nb_chars=200),
+        price=random.uniform(5.0, 100.0)
     )
 
 def seed_database():
     with app.app_context():
+        # Delete all records from tables
         db.session.query(User).delete()
         db.session.query(Illness).delete()
         db.session.query(Medicine).delete()
-        db.session.query(Order).delete()
-        
-        fake_illnesses = [create_fake_illness() for _ in range(50)]
-        fake_users = [create_fake_user() for _ in range(30)]
-        fake_medicines = [create_fake_medicine() for _ in range(50)]
-        fake_orders = [create_fake_order() for _ in range(500)]
+        db.session.query(user_illness).delete()
+        db.session.query(illness_medicine).delete()
 
-        db.create_all()
+        # Commit the deletion
+        db.session.commit()
 
-        db.session.bulk_save_objects(fake_users)
-        db.session.bulk_save_objects(fake_illnesses)
-        db.session.bulk_save_objects(fake_medicines)
-        db.session.bulk_save_objects(fake_orders)
+        # Create custom data for illnesses and medicines
+        custom_illnesses = [
+            Illness(name="fever", description="Rise in body temperatures"),
+            Illness(name="headache", description="Pain from the forehead back to your neck"),
+            Illness(name="stomachache", description="Pain around abdominal areas"),
+            Illness(name="toothache", description="Pain from your teeth or areas around the gums"),
+            Illness(name="asthma", description="Difficulty in breathing")
+        ]
 
+        custom_medicines = [
+            Medicine(name="FeverFix", description="FeverFix is an effective medication for reducing fever caused by various infections and illnesses.", price=10.0),
+            Medicine(name="HeadacheRelief", description="HeadacheRelief provides rapid relief from headaches and migraines", price=20.0),
+            Medicine(name="StomachSoothe", description="StomachSoothe is a gentle yet effective remedy for soothing stomach aches and digestive discomfort", price=30.0),
+            Medicine(name="ToothEase", description="ToothEase provides fast relief from toothache and dental discomfort", price=40.0),
+            Medicine(name="AsthmaEase", description="AsthmaEase is a trusted medication for managing asthma symptoms and improving respiratory health", price=50.0)
+        ]
+
+        # Add custom data to the database session
+        db.session.add_all(custom_illnesses)
+        db.session.add_all(custom_medicines)
+        db.session.commit()
+
+        # Associate illnesses with appropriate medicines
+        for illness in custom_illnesses:
+            if illness.name == "fever":
+                illness.medicines.append(custom_medicines[0])  # Associate FeverFix with fever
+            elif illness.name == "headache":
+                illness.medicines.append(custom_medicines[1])  # Associate HeadacheRelief with headache
+            elif illness.name == "stomachache":
+                illness.medicines.append(custom_medicines[2])  # Associate StomachSoothe with stomachache
+            elif illness.name == "toothache":
+                illness.medicines.append(custom_medicines[3])  # Associate ToothEase with toothache
+            elif illness.name == "asthma":
+                illness.medicines.append(custom_medicines[4])  # Associate AsthmaEase with asthma
+
+        # Create fake users and associate them with custom illnesses
+        fake_users = [create_fake_user() for _ in range(10)]
+
+        for user in fake_users:
+            for _ in range(random.randint(1, 3)):
+                illness = random.choice(custom_illnesses)
+                user.illnesses.append(illness)
+
+        db.session.add_all(fake_users)
         db.session.commit()
 
 if __name__ == '__main__':
     seed_database()
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6c8f519 (saturday)

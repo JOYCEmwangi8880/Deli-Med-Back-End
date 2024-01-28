@@ -213,12 +213,12 @@ def delete_order(id):
 @app.route('/illnesses', methods=['GET'])
 def get_illnesses():
     illnesses = Illness.query.all()
-    illness_list_list = []
+    illness_list = []
 
     for illness in illnesses:
         illness_data = {
             'id': illness.id,
-            'name': illnessname,
+            'name': illness.name,
             'description': illness.description
         }
         illness_list.append(illness_data)
@@ -226,7 +226,23 @@ def get_illnesses():
     return jsonify(illness_list)
 
     
+from flask import jsonify
 
+@app.route('/illnesses/<int:illness_id>/medicines', methods=['GET'])
+def get_medicines_for_illness(illness_id):
+    illness = Illness.query.get(illness_id)
+    print("Illness:", illness)  # Debug print statement
+    
+    if not illness:
+        return jsonify({'error': 'Illness not found'}), 404
+    
+    medicines = illness.medicines
+    print("Medicines:", medicines)  # Debug print statement
+    
+    serialized_medicines = [medicine.serialize() for medicine in medicines]
+    print("Serialized Medicines:", serialized_medicines)  # Debug print statement
+    
+    return jsonify(serialized_medicines)
 
 
 @app.route('/')
