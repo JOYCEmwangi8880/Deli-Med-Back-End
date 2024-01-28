@@ -52,6 +52,7 @@ def login():
 
             # Create a dictionary with user data to include in the response
             user_data = {
+                'id' : user.id,
                 'username': user.username,
                 'email': user.email,
                 'name': user.name,
