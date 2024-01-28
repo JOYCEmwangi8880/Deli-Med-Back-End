@@ -232,7 +232,6 @@ def delete_order(id):
 def get_illnesses():
     illnesses = Illness.query.all()
     illness_list = []
-
     for illness in illnesses:
         illness_data = {
             'id': illness.id,
@@ -243,7 +242,6 @@ def get_illnesses():
 
     return jsonify(illness_list)
 
-    
 @app.route('/illnesses/<int:illness_id>/medicines', methods=['GET'])
 def get_medicines_for_illness(illness_id):
     illness = Illness.query.get(illness_id)
