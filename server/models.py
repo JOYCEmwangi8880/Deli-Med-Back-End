@@ -10,6 +10,7 @@ class User(db.Model):
     password = db.Column(db.String(120), nullable=False)
     name = db.Column(db.String(120))
     age = db.Column(db.Integer)
+    is_active = db.Column(db.Boolean, default=True)
     height = db.Column(db.Float)
     blood_type = db.Column(db.String(3))
     previous_illnesses = db.Column(db.Text)  # Define 'previous_illnesses' as a Text column
